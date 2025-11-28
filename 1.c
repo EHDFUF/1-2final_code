@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <stdint.h>
+#include <stdlib.h>
 
 void CH11_1(void) // 배열 정의 및 접근
 {
@@ -228,9 +228,9 @@ void CH14_3_example_active(void)
 void CH14_4(void) // scanf의 &연산자
 {
 	int num;
-	scanf("%d", &num); // scanf도 엄연한 함수기 때문에 외부에서 선언된 변수를 접근하기 위해서는 주소값을 알아야학기 때문
-	int arr[] = NULL;
-	scanf("%s", arr); // 해당 접근 변수가 배열이고 배열은 배열 이름 자체가 주소값이기 때문에 &을 안쓴다
+	scanf_s("%d", &num); // scanf도 엄연한 함수기 때문에 외부에서 선언된 변수를 접근하기 위해서는 주소값을 알아야학기 때문
+	// int arr[] = NULL;
+	//scanf("%s", arr); // 해당 접근 변수가 배열이고 배열은 배열 이름 자체가 주소값이기 때문에 &을 안쓴다
 }
 
 void CH14_5_alpha(void) // 포인터 변수의 참조대상에 대한 const 선언 **매우중요**
@@ -253,11 +253,98 @@ void CH14_5_beta(void)
 	// ptr = &num; 실패
 	*pnum = 40; // 성공 
 
-	const int* const pnum = &num; // 두 개 동시
+	//const int* const pnum = &num; // 두 개 동시 <= pnum is constant pointer to constant intiger
+	// pnum은 주소값을 활용한 변수값 변경 불가 및 주소값에 해당하는 변수를 통해 값 변경 불가 
 }
 
-void main(void)
+// int a = 20; 은 전역변수라서 데이터 영역에 저장
+
+void CH15_1(void) // 메모리 구성(4가지 : 코드 / 데이터 / 스택 / 힙)
 {
-	CH14_3_example_active();
+	// 메모리 구성 : 코드/데이터/힙/스택 영역으로 구성 <= for 구간별 데이터 저장 용이 및 접근속도 향상 
+	// 코드 영역 : 프로그램코드 저장 
+	// 데이터 영역 :  전역/static <= 종료시까지 남아있는 변수들 저장
+	// 스택 영역 : 지역/매개변수 <= 함수 이탈 시 소멸되는 변수들 저장
+	// 힙 영역 : 원하는 시점에 할당 및 소멸 가능 영역
+
+	int a = 20; // 은 CH15_1 함수 내의 지역 변수이므로 스택 영역에 저장
+	
+}
+// 함수 이탈 시 스택 영역에 있는 a는 소멸 <= 소멸 안되려면 static int a = 20; 으로 데이터 영역으로 넘겨야함  
+
+/*
+void temp_f1(void)
+{
+	char name[30]; //name은 함수호출시 할당이 되야하거니와 반환을 해도 존재해야함 <= 전역/지역으로 해결은 불가함
+	printf("your name?"); 
+	gets_s(name); //해당 문제는 메모리영역을 데이터->힙 영역으로 전환해야함(전환방법은 
+	return name;
+}
+
+void CH15_2(void)
+{
+	char* name1;
+	char* name2; // name1,2 is pointer to char : character형 포인터 변수 name1,2 선언
+	//name1 = temp_f1(); printf("name1: %s\n", name1);
+	//name2 = temp_f1(); printf("name2: %s\n", name2); 해당코드는 실행불가
+	return;
+}
+*/
+
+void CH15_3(void) //힙영역 접근 및 해제
+{
+	void* ptr1 = malloc(4); // 빈 자료형 변수에 4바이트 할당 : void형인 이유 -> 할당된 메모리의 용도를 모르기 때문 -> 형을 지정할거면 형 변환을 통해서 지정
+	free(ptr1); // 4바이트 할당 공간 해제
+
+	int* ptr2 = (int*)malloc(sizeof(int)); //모범답안이라는것
+}
+
+void CH15_4(void)
+{
+	int* ptr1 = (int*)malloc(sizeof(int) * 7); // 메모리할당 실패하면 malloc 함수는 NULL을 반환함
+	*ptr1 = 20;
+	printf("%d\n", *ptr1);
+
+	for (int i = 0; i < 7; i++)
+	{
+		ptr1[i] = i + 1;
+	}
+	for (int i = 0; i < 7; i++)
+	{
+		printf("%d ", ptr1[i]);
+	}
+	free(ptr1);
+	return;
+}
+
+void CH15_2_resolve_active(void)
+{
+	char* name = (char*)malloc(sizeof(char) * 30); //malloc 활용하여 힙영역에 변수 저장
+	printf("WHO ARE YOU");
+	// fgets(name); // 아무튼 된다
+	return name;
+}
+
+void CH15_2_resolve(void)
+{
+	char* name1;
+	char* name2; // name1,2 is pointer to char : character형 포인터 변수 name1,2 선언
+	name1 = CH15_2_resolve_active; printf("name1: %s\n", name1);
+	name2 = CH15_2_resolve_active; printf("name2: %s\n", name2);
+	free(name1);
+	free(name2);
+	return;
+}
+
+void CH15_5(void)
+{
+	int* arr_calloc = (int*)calloc(5, sizeof(int)); // 할당공간 모두 0으로 초기화 // malloc은 값 바꾸기X
+	realloc(arr_calloc, sizeof(int) * 40); //재할당
+}
+
+
+void main(void)
+{	
+	CH15_2_resolve();
 	return;
 }	
