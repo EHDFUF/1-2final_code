@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 void CH11_1(void) // 배열 정의 및 접근
 {
@@ -325,7 +326,7 @@ void CH15_2_resolve_active(void)
 	return name;
 }
 
-void CH15_2_resolve(void)
+void CH15_2_resolve(void) // 힙영역으로 CH15_2 (전역/지역 => 데이터영역) 해결
 {
 	char* name1;
 	char* name2; // name1,2 is pointer to char : character형 포인터 변수 name1,2 선언
@@ -336,15 +337,402 @@ void CH15_2_resolve(void)
 	return;
 }
 
-void CH15_5(void)
+void CH15_5(void) // malloc함수 확장 -> calloc(할당공간 all 0) , realloc(바이트크기재할당)
 {
 	int* arr_calloc = (int*)calloc(5, sizeof(int)); // 할당공간 모두 0으로 초기화 // malloc은 값 바꾸기X
 	realloc(arr_calloc, sizeof(int) * 40); //재할당
+	printf("%d", arr_calloc);
 }
 
+void CH16_1(void) // 구조체 시작 : 사용자 정의 자료형
+{
+	// 독립정보를 한개의 자료형으로 묶기
+	struct point
+	{
+		int xpos;
+		int ypos; // 이면 point라는 구조체 이름에 독립적인 변수(배열도 가능)인 xpos, ypos가 묶이게 되는것 
+	};
+
+	struct point pos; // valuable pos is type point's structure
+	// 변수 정의와 접근(변수명.맴버)
+	pos.xpos = 20; // at structure name valualbe : pos , his member xpos <- 20; 
+	printf("%d", pos.xpos);
+}
+
+void CH16_2(void) // 구조체 변수 선언/접근 
+{
+	struct point
+	{
+		int xpos;
+		int ypos; 
+	};
+
+	struct point pos1, pos2; // 구조체에 사용될 변수 2개 선언
+	double distance;
+	printf("point1 pos: ");
+	scanf("%d %d", &pos1.xpos, &pos1.ypos);
+	printf("point2 pos: ");
+	scanf("%d %d", &pos2.xpos, &pos2.ypos);
+
+	distance = sqrt((double)((pos1.xpos - pos2.xpos) * (pos2.xpos - pos1.xpos) + (pos1.ypos - pos2.ypos) * (pos2.ypos - pos1.ypos)));
+	printf("두 점 거리 : %g", distance);
+	return;
+
+}
+
+void CH16_3(void) // 구조체 변수선언/접근 + #include <string.h> 해더파일 필요
+{
+	struct person
+	{
+		char name[20];
+		char phone_number[20];
+		int age;
+	};
+	struct person man1, man2; 
+	strcpy(man1.name, "안성준"); // strcpy를 통해 문자열 복사해서 man1.name에 붙여넣기
+	strcpy(man1.phone_number, "010-1122-3344");
+	man1.age = 12;
+
+	printf("이름 입력: "); scanf("%s", man2.name);
+	printf("번호 입력: "); scanf("%s", man2.phone_number);
+	printf("나이 입력: "); scanf("%d", &man2.age);
+
+	printf("man1의 이름: %s\n", man1.name);
+	printf("man1의 번호: %s\n", man1.phone_number);
+	printf("man1의 나이: %d\n", man1.age);
+
+	printf("man2의 이름: %s\n", man2.name);
+	printf("man2의 번호: %s\n", man2.phone_number);
+	printf("man2의 나이: %d\n", man2.age);
+	
+	return;
+
+}
+
+void CH16_4(void) // 구조체 선언 + 변수선언 동시실행
+{
+	/*
+	struct point
+	{
+		int xpos;
+		int ypos; 
+	};
+
+	struct point pos1, pos2; // 구조체에 사용될 변수 2개 선언
+	*/
+
+	// 구조체 point 선언 후 구조체에 사용될 변수를 선언함
+
+	struct point
+	{
+		int xpos; int ypos;
+	} pos1, pos2, pos3; // 으로 구조체선언+변수선언 동시 가능
+
+	struct point_plus
+	{
+		int xpos; int ypos;
+	};
+	struct point_plus pos11, pos22, pos33; // 구조체선언+변수선언과 구조체선언 after 변수선언은 컴파일 동일
+}
+
+void CH16_5(void) // typedef(이름 새롭게 정의 : typedef int INT) 활용하여 구조체 정의 + 초기화
+{
+	/*
+	typedef struct // 이름없는 구조체 
+	{
+		int xpos;
+		int ypos;
+	}point; // struct {int xpos; int ypos; } -> point 로 재정의함
+	*/
+
+	struct person
+	{
+		char name[20];
+		char phone_number[20];
+		int age;	
+	} example_man = { "K", "1234", 1 }; // 맴버 배치 순서대로 초기화 + example_man은 person 구조체의 변수;
+	// person 이름 구조체 초기화
+	
+	printf("%s %s %d", example_man.name, example_man.phone_number, example_man.age);
+}
+#define ARR_SIZE 3
+void CH16_6(void) // 구조체 배열 선언 / 저장
+{
+	struct point {
+		int xpos;
+		int ypos;
+	};
+	
+	struct point arr[ARR_SIZE] =
+	{
+		{1,2},
+		{3,4},
+		{5,6}
+	};
+	/*
+	for (int i = 0; i < ARR_SIZE; i++)
+	{
+		printf("점 좌표 입력 : ");
+		scanf("%d %d", &arr[i].xpos, &arr[i].ypos); // arr[0]에는 구조체 정의에 따라 xpos, ypos값이 저장됨
+	}
+	for (int i = 0; i < ARR_SIZE; i++)
+	{
+		printf("[%d %d] ", arr[i].xpos, arr[i].ypos);
+	}
+	return;
+	*/
+
+}
+
+void CH16_7(void) // 구조체 변수 + 포인터
+{
+	struct point
+	{
+		int xpos;
+		int ypos;
+	} pos = {11,22}, *pptr = &pos;
+
+	printf("[%d %d]\n", pptr->xpos, (*pptr).ypos);
+
+	(*pptr).xpos = 10; // == pptr->xpos = 10;
+	(*pptr).ypos = 20; // == pptr->ypos = 20;
+
+	pptr->xpos = 30;
+	pptr->ypos = 40;
+	pptr->xpos += 1;
+
+	printf("[%d %d]\n", (*pptr).xpos, pptr->ypos); //출력결과예상 31 40
+	
+}
+
+void CH16_8(void) // 포인터 변수 -> 구조체 맴버로 선언1
+{
+	struct point 
+	{
+		int xpos;
+		int ypos;
+	};
+	struct circle
+	{
+		double radius;
+		struct point* center; // 구조체 이름 point 아래 생성된 변수 = 포인터 변수 center
+	};
+	struct point cen = { 1,2 };
+	double rad = 5.5;
+	struct circle ring = { rad, &cen }; //**매우중요** cen은 현재 [1,2]의 배열형태 : &cen은 배열이름을 가리킴
+	// ring 변수's 구조체에서 &cen이 선언되었는데 이 자리는 구조체 상 point* cen
+	printf("원반지름 : %.2f\n", ring.radius);
+	printf("원 중심 : [%d %d]\n", (ring.center)->xpos, (ring.center)->ypos);
+	return;
+}
+
+void CH16_9(void) // 포인터 변수 -> 구조체 맴버 선언2 + 주소값
+{
+	struct point
+	{
+		int xpos;
+		int ypos;
+		struct point* ptr; // 구조체 변수를 원래는 외부에서 선언하지만 구조체 변수를 해당 구조체의 맴버로 선언 가능
+	};
+	struct point pos1 = { 1,1 };
+	struct point pos2 = { 2,2 };
+	struct point pos3 = { 3,3 };
+
+	pos1.ptr = &pos2;
+	pos2.ptr = &pos3;
+	pos3.ptr = &pos1;
+
+	printf("포인터 주소 연결 관계\n");
+	printf("pos1의 ptr맴버를 통해 [%d %d] [%d %d] 연결\n", pos1.xpos, pos1.ypos, pos1.ptr->xpos, (*pos1.ptr).ypos);
+	printf("pos2의 ptr맴버를 통해 [%d %d] [%d %d] 연결\n", pos2.xpos, pos2.ypos, pos2.ptr->xpos, (*pos2.ptr).ypos);
+	printf("pos3의 ptr맴버를 통해 [%d %d] [%d %d] 연결\n", pos3.xpos, pos3.ypos, pos3.ptr->xpos, (*pos3.ptr).ypos);
+	// 주소값 추출
+	printf("%p %p %p %p %p\n", &pos1, &pos1.xpos, &pos1.ypos,  pos1.ptr, &pos2.xpos);
+
+	return;
+}
+/*
+void CH17_1(void) // 구조체를 활용하여 함수 매개변수 전달 및 반환
+{
+	typedef struct
+	{
+		int xpos;
+		int ypos;
+	} Point;
+
+	void CH17_1_active1(Point pos)
+	{
+		printf("[%d %d]\n", pos.xpos, pos.ypos);
+	}
+	
+	CH17_1_active2(void)
+	{
+		Point cen;
+		printf("INPUT pos: ");
+		scanf("%d %d", &cen.xpos, &cen.ypos);
+		return cen;	
+	}
+}
+*/
+
+void CH17_2(void) // 함수 매개변수 전달/반환 with 배열 복사
+{
+	typedef struct person
+	{
+		char name[20];
+		char phone_number[20];
+		int age;
+	}Person;
+	/*
+	void CH17_2_active1(Person man) // 매개변수 안에서 Person 구조체 변수 man 선언 
+	{
+	
+	}
+	void CH17_2_active2(void)
+	{
+		Person man = ~ ; 통째로 복사가 가능하기에 매개변수 말고 함수 안에서 가능
+	}
+
+	*/
+}
+
+void CH17_3(void) // 포인터 활용하여 구조체 변수 전달
+{
+	typedef struct point
+	{
+		int xpos;
+		int ypos;
+	}Point;
+}
+// void CH17_3_active1(Point* ptr) Point 구조체의 변수인데 포인터 변수 ptr 선언
+// 함수 내부에서 -값이 바뀌지만 pdf상 pos는 배열이기에 통째로 복사 가능
+
+// active2(Point pos) 대신에 active2(Const Point *ptr)을 사용하면 주소값 접근하여 값 변화 불가능 -> 오직 데이터 Read만 가능하게 하여 안정성을 높임
+void CH17_4(void) // 중첩구조문
+{
+	typedef struct point
+	{
+		int xpos;
+		int ypos;
+
+	}Point;
+	typedef struct circle
+	{
+		Point cen; // struct point의 xpos, ypos 구조를 circle의 맴버로 활용한다는 뜻
+		double rad;
+	}Circle;
+}
+
+void CH18_1(void) // 입출력함수
+{
+	// 데이터의 이동수단:스트림(소프트웨어적 형태의 다리)
+	//stdin : 표준입력스트림 , stdout : 표준출력스트림 , stderr : 표준에러시트림 -> stdin 빼고 나머지 2개는 다 출력
+
+	int putchar(int c); // 매개변수 문자 모니터에 출력함 
+	int fputc(int c, FILE * stream); // second 매개변수를 통해 출력대상지정 
+
+	int getchar(void);
+	int fgetc(FILE * stream);
+}
+#define MAX_SIZE 100
+void CH18_1_ex(void)
+{
+	int ch1; // but ch1은 문자 입력인데 왜 int형인가 -> EOF(end of file) 때문
+	int* ch2; // fgets함수 호출 실패 시 EOF(end of file : ctrl+z or ctrl+d 로 약속됨 / -1로 정의됨)을 반환함 + char형은 예외적으로 unsigned로 표현하는 컴파일러가 존재하기 때문
+	
+	char buffer[MAX_SIZE];
+
+	ch1 = getchar(); // 입력 
+	ch2 = fgets(buffer, MAX_SIZE, stdin); // 엔터키도 입력
+
+	putchar(ch1); // 출력
+	fputs(ch2, stdout); // 엔터키도 출력
+
+	int ch;
+	while (2)
+	{
+		ch = getchar(); 
+		if (ch == EOF)
+			break;
+		putchar(ch);
+	}
+
+	return;
+}
+
+void CH18_2(void) //puts, fputs
+{
+	char* str = "Simple String";
+
+	printf("1: puts함수 테스트\n");
+	puts(str);
+	puts("So simple String"); // 자동 개행
+
+	printf("2: fputs함수 테스트\n");
+	fputs(str, stdout);printf("\n");
+	fputs("So simple String", stdout); printf("\n");
+
+	printf("3. end\n");
+	return;
+}
+
+void CH18_3(void) //puts, fputs
+{
+	//CH18_1처럼 define 대신에 sizeof로 대처
+
+	char str[7]; // 7문자씩 읽기 가능 + enter 포함 -> 관련단어 : 버퍼 = 특정크기 메모리공간(데이터모아서전송과관련있음)
+
+	for (int i = 0; i < 3; i++)
+	{
+		fgets(str, sizeof(str), stdin); 
+		printf("Read %d : %s\n\n", i + 1, str); // 7문자씩 끊어서 입력받고 출력됨
+	}
+	return;
+}
+
+void CH18_4(void) // 버퍼비우기 = 버퍼 내 존재하는 데이터를 최종전송
+{
+	// int fflush(stdout); // 출력버퍼비우기라는뜻 
+
+	// while (getchar() != '\n(=enter)') // 입력버퍼비우기
+
+	char str[] = "12345678";
+	printf("%u\n", strlen(str)); // string.h 헤더파일 필요
+}
+
+void CH18_5(void) //문자열복사 : strcpy() strncpy()
+{
+	char str1[30] = "simple string";
+	char str2[30];
+	strcpy(str2, str1); // str1 -> str2 은 단순복사 
+
+	char str3[30] = "simple string";
+	char str4[30];
+	strncpy(str4, str3, sizeof(str4)); // str3->str4 + sizeof(str4)의 반환값 크기만큼만 복사 (str + n + cpy)
+
+	// 문자열 끝 : NULL까지 복사해야 함을 유의할 것
+}
+
+void CH18_6(void) // 문자열덧붙이기 : strcat(), strncat()
+{
+	char str1[30] = "Fisrt"; //Fisrt\0 에서 덧붙이기 시작장소는 \0
+	char str2[30] = "Second";
+	strcat(str1, str2); // str1 + -> str2 
+
+	// strncat(str1, str2, sizeof(str2)) 일 경우 덧붙여지는 문자열 바이트를 sizeof(str2)가 통제
+}
+
+void CH18_7(void) // 문자열비교 : strcmp() strncmp()
+{
+	printf("%d\n", strcmp("ABCD", "ABCE")); // 첫번째 인자가 기준 : 크면 0 이상 값 반환
+	printf("%d\n", strcmp("ABCF", "ABCE")); // 작으면 0 이하 값 반환 
+	// 같으면 0
+}
+
+// atoi : 문자열 내용 -> int , atol : 문자열 내용 -> long , double atof -> 문자열 내용 -> double형으로 변환
 
 void main(void)
 {	
-	CH15_2_resolve();
+	CH18_7();
 	return;
 }	
